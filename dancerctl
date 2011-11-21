@@ -2,7 +2,7 @@
 #
 # dancerctl - like apachectl for perl/Dancer apps
 #
-# Copyright (c) 2011, Nick Knutov nick@knutov.com
+# Copyright (c) 2011, Nick Knutov, nick@knutov.com
 # https://github.com/knutov/dancerctl
 #
 # License: BSD 2-Clause License (http://en.wikipedia.org/wiki/BSD_licenses)
