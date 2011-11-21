@@ -1,0 +1,242 @@
+#!/usr/bin/env perl
+#
+# dancerctl - like apachectl for perl/Dancer apps
+#
+# Copyright (c) 2011, Nick Knutov nick@knutov.com
+# https://github.com/knutov/dancerctl
+#
+# License: BSD 2-Clause License (http://en.wikipedia.org/wiki/BSD_licenses)
+#
+our $VERSION = '0.01';
+
+use 5.10.1;
+use feature 'switch';
+use feature 'say';
+use strict;
+# no strict 'refs';
+# use Getopt::Std;
+use Config::Auto;
+use Data::Dumper;
+
+my $global = $ENV{DANCERCTL} || '/etc/dancer.conf';  # better should be 644
+
+
+# load defaults
+# FIXME: it assumes now that all users are in /home/
+my $default = Config::Auto::parse($global) if -f $global;
+
+$default->{conf}      ||= '.dancer';    # default ~user/.dancer/appname
+                                        # TODO: or, if not exists, 
+                                        #       ~user/.dancer as one config 
+                                        #       for all apps 
+$default->{workers}   ||= 2;            # default number of workers
+$default->{host}      ||= 'localhost';  # default host to bind (localhost, ip or *)
+$default->{port}      ||= '3000';       # default port
+$default->{sockets}   ||= '';           # socket path (start from user dir or absolute or relative to app path)
+$default->{pids}      ||= '';           # pid path (start from user dir or absolute or relative to app path)
+$default->{users}     ||= '';           # TODO: enabled users for dancerctl, comma and/or space separated. 
+                                        #       blank means all users are enabled
+$default->{server}    ||= 'Starman';
+$default->{env}       ||= 'production'; # default environment
+$default->{path}      ||= 'apps/';      # relative to $home prefix to path with all apps
+$default->{method}    ||= 'port';
+$default->{debug}     ||= undef;
+
+my $debug = $default->{debug};
+$debug = undef;
+
+
+my $root = $< == 0; # true if user is root
+my $argc = scalar(@ARGV);
+my ($home,$user,$app,$action,$env);
+($user,$app,$action,$env) = @ARGV if $root and $argc == 4;
+($user,$app,$action     ) = @ARGV if $root and $argc == 3;
+($user,     $action     ) = @ARGV if $root and $argc == 2;
+(           $action     ) = @ARGV if $root and $argc == 1;
+($app,$action,$env) = @ARGV if not $root and $argc == 3;
+($app,$action     ) = @ARGV if not $root and $argc == 2;
+(     $action     ) = @ARGV if not $root and $argc == 1;
+$user   ||= $ENV{USER};
+$action ||= 'help';
+$env    ||= $default->{env};
+$home     = $ENV{HOME};
+
+if ( $debug ) {
+	say 'Root?......: '.$root;
+	say 'Home.......: '.$home;
+	say 'User.......: '.$user;
+	say 'App........: '.$app;
+	say 'Action.....: '.$action;
+	say 'Environment: '.$env;
+}
+
+help() if $action eq 'help';
+
+# FIXME: no root for now
+# TODO: action_all not implemented now
+if ( $app ) {
+	start($user,$home,$app,$env)   if $action eq 'start';
+	stop($user,$home,$app,$env)    if $action eq 'stop'  ;
+	status($user,$home,$app,$env)  if $action eq 'status' ;
+	restart($user,$home,$app,$env) if $action eq 'restart' ;
+} else {
+	start_all($user)   if $action eq 'start';
+	stop_all($user)    if $action eq 'stop'  ;
+	status_all($user)  if $action eq 'status' ;
+	restart_all($user) if $action eq 'restart' ;
+}
+#===============================================================================
+sub start {
+	my ($user,$home,$app,$env) = @_;
+
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt) 
+		= parse_user_config($user,$home,$app,$env);
+	
+	die "Error: wrong method '$method'" unless $method =~ /^socket|port$/;
+	
+	my   @cmd = ();
+	push @cmd, "cd $app_path && plackup";
+	push @cmd, '-E',    $env;
+	push @cmd, '-s',    $server;
+	push @cmd, '-w',    $workers;
+	push @cmd, '-l',    $listen;
+	push @cmd, '--pid', $pidfile;
+	
+	# TODO: "--access-log $logs/$access.log"
+    # TODO: "--error-log $logs/$error.log"
+    # TODO: add "-r -R path,path,path" support
+    # TODO: reload - reopens logs without restart
+    
+	push @cmd, '-a ./bin/app.pl -D';
+	push @cmd, $opt if $opt;
+	
+	my $cmd = join(" ", @cmd); say $cmd if $debug;
+	system($cmd);
+	say "Started $app in $env mode.";
+	say "Browse at http://$listen" if $method eq 'port';
+}
+#===============================================================================
+sub parse_user_config {
+	my ($user,$home,$app,$env) = @_;
+	my ($p,$c);
+	# $p = $home.'/'.$default->{conf}          if -f $home.'/'.$default->{conf};
+	$p = $home.'/'.$default->{conf}.'/'.$app if -d $home.'/'.$default->{conf};
+	$c = Config::Auto::parse($p, format => "yaml") if -f $p;
+	die "no config $p" unless -f $p;
+	
+	my $app_path  = $home.'/'; $app_path .= $c->{path} || $default->{path}.$app;
+	
+	my $method = $c->{$env}->{method} || $default->{method};
+	my $host   = $c->{$env}->{host}   || $default->{host};
+	my $port   = $c->{$env}->{port}   || $default->{port};	
+	
+	my @cmd = ();
+	push @cmd, 'cd '.$app_path.' && ';
+	push @cmd, 'plackup -E '.$env;
+	my $server  = $c->{$env}->{server}  || $c->{server} || $default->{server};
+	my $workers = $c->{$env}->{workers} || $default->{workers};
+	
+	my $listen;
+	if ( $method eq 'socket' ) {
+		my $sock = $c->{$env}->{socket_path} || $default->{sockets};
+		given ( $sock ) {
+			when ( m#^\/# )  {} # absolute path
+			when ( m#^~\/# ) { $sock =~ s/^~//; $sock = $home.$sock } # relative to user home
+			default { $sock = $app_path.'/'.$sock}
+		}
+		my $socket_name = $c->{$env}->{socket_name} || $app.'.sock';
+		$listen = $sock.$socket_name;
+	} elsif ( $method eq 'port') {
+		$listen = "$host:$port";		
+	} else {
+		die "Error: wrong method '$method'";
+	}
+	
+	my $pid = $c->{$env}->{pid} || $default->{pids};
+	given ( $pid ) {
+		when ( m#^\/# )  {} # absolute path
+		when ( m#^~\/# ) { $pid =~ s/^~//; $pid = $home.$pid } # relative to user home
+		default { $pid = $app_path.'/'.$pid}
+	}
+	my $pid_name = $c->{$env}->{pid_name} || $app.'.pid';
+	my $pidfile  = $pid.$pid_name;
+	
+	my $opt      = $c->{$env}->{opt};
+	
+	return ($app_path,$server,$workers,$method,$listen,$pidfile,$opt);
+}
+#===============================================================================
+sub status {
+	my ($user,$home,$app,$env) = @_;
+
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt) 
+		= parse_user_config($user,$home,$app,$env);
+
+	# based on web_ctl.pl by Puneet Kishor, https://github.com/punkish/web_ctl
+	# tested under Ubuntu 11.04
+	if (-e $pidfile) {
+		open(PS_F, "ps lax | grep '[s]tarman master'|");
+
+		PS: while (<PS_F>) 
+		{
+			chomp;
+			$_ = trim($_);
+			say $_;
+			#  F  UID   PID  PPID        F CPU PRI NI       SZ    RSS WCHAN     S             ADDR TTY           TIME CMD
+			#  ?  501  4882     1      104   0  31  0  2469860   4656 -      Ss   ffffff800e37f740 ??         0:00.08 starman master 
+			my ($f, $uid, $pid, $ppid, $f, $cpu, $pri, $ni, $sz, $rss, $wchan, $s, $addr, $tty, $time, $cmd) = split /\s+/;
+
+			my $pid_in_file = qx{head -1 $pidfile}; #"
+
+			if ($pid_in_file == $pid) {
+				my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size, $atime, $mtime, $ctime, $blksize, $blocks) = stat($pidfile);
+				say "application: $app\n" . 
+				"    running since: " . localtime($ctime) . "\n" . 
+				"    in mode      : $env\n" ;
+				# "    browse at    : $host" . ':' . $apps{$app}->{port};
+				last PS;
+			}
+		}
+		close(PS_F);
+	} else {
+		say "The app '$app' doesn't seem to be running in mode '$env'";
+	}
+}
+#===============================================================================
+sub stop {
+	my ($user,$home,$app,$env,$force) = @_;
+
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt) 
+		= parse_user_config($user,$home,$app,$env);
+
+	unless (-e $pidfile) {
+		say "The app '$app' doesn't seem to be running... nothing to do.";
+		return undef;
+	}
+
+	my $cmd = "cat $pidfile | xargs kill"; $cmd .= " -9" if $force;
+	say $cmd if $debug;
+	system($cmd);
+	say "Stopped $app"; # TODO: read error code from system and use it
+}
+#===============================================================================
+sub restart {
+	stop(@_);
+	start(@_);
+}
+#===============================================================================
+sub trim {
+    my $string = shift;
+    if ($string) {
+        $string =~ s/^\s+//;
+        $string =~ s/\s+$//;
+        return $string;
+    }
+}
+#===============================================================================
+sub help {
+	# TODO: print usage;
+	say "dancerctl version $VERSION";
+	say "Usage:";
+	say "   dancerctl dancer_app start|stop|restart|status [environment]";
+}
