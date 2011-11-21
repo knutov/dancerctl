@@ -4,24 +4,24 @@ Small tool that can start/stop/restart Dancer apps
 
 Usage: 
 
-dancerctl [$appname] $action [environment]
+dancerctl [appname] action [environment]
 
 Where:
 action      - start/stop/restart. 
-			  Will start/stop/restart all available apps if no $appname is specified [not implemented now]
+              Will start/stop/restart all available apps if no $appname is specified [not implemented now]
 environment - usually 'development' or 'production'
 
 Examples under not root user:
 
 dancerctl dancer_app start|stop|restart|status [environment]
 
-[not implemented] Examples under root(!) user: 
+Examples under root(!) user: [not implemented]
 
 dancerctl user dancer_app start|stop|restart|status [environment]
 
 dancerctl help
-dancerctl setup
-dancerctl update
+dancerctl setup   [not implemented]
+dancerctl update  [not implemented]
 
 Config example
 ===============
@@ -30,7 +30,7 @@ Config example
 # path to app: /home/user/app
 path: app
 production:
-  # -l ...dh.sock
+  # -l /home/user/app/app.sock
   method: socket
 development:
   # -w 1
