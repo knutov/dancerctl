@@ -43,7 +43,6 @@ $default->{method}    ||= 'port';
 $default->{debug}     ||= undef;
 
 my $debug = $default->{debug};
-$debug = undef;
 
 
 my $root = $< == 0; # true if user is root
