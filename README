@@ -1,0 +1,66 @@
+dancerctl - like apachectl for perl/Dancer apps
+================================================
+Small tool that can start/stop/restart Dancer apps
+
+Usage: 
+
+dancerctl [appname] action [environment]
+
+Where:
+action      - start/stop/restart. 
+              Will start/stop/restart all available apps if no $appname is specified [not implemented now]
+environment - usually 'development' or 'production'
+
+Examples under not root user:
+
+dancerctl dancer_app start|stop|restart|status [environment]
+
+Examples under root(!) user: [not implemented]
+
+dancerctl user dancer_app start|stop|restart|status [environment]
+
+dancerctl help
+dancerctl setup   [not implemented]
+dancerctl update  [not implemented]
+
+Config example
+===============
+/home/user/.dancer/app
+
+# path to app: /home/user/app
+path: app
+production:
+  # -l /home/user/app/app.sock
+  method: socket
+development:
+  # -w 1
+  workers: 1
+  # -l localhost:3002
+  method: port
+  port: 3002
+  # --pid /home/user/app/dev.pid
+  pid_name: dev.pid
+demo:
+  # -l localhost:3999
+  port: 3999
+  # this will be added to the end of plackup sting
+  opt: "--backlog 1024 --max-requests 100"
+  
+Install
+========
+Cpanminus and perl 5.10 are required.
+
+cpanm Config::Auto
+
+'dancerctl' was tested under modern version of Ubuntu (11.04). 
+Some part (like 'status') may not work under different linuxes and OSes 
+(note hardcoded slashes).
+
+
+Copyright
+==========
+Copyright (c) 2011, Nick Knutov, nick@knutov.com, https://github.com/knutov/dancerctl
+
+License
+========
+BSD 2-Clause License (http://en.wikipedia.org/wiki/BSD_licenses)
