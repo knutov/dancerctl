@@ -40,6 +40,7 @@ $default->{server}    ||= 'Starman';
 $default->{env}       ||= 'production'; # default environment
 $default->{path}      ||= 'apps/';      # relative to $home prefix to path with all apps
 $default->{method}    ||= 'port';
+$default->{autoall}   ||= 1;            # auto _all action if no app specified
 $default->{debug}     ||= undef;
 
 my $debug = $default->{debug};
