@@ -23,12 +23,26 @@ dancerctl help
 dancerctl setup   [not implemented]
 dancerctl update  [not implemented]
 
+Configs (in order of priority DESC)
+====================================
+~/.dancer/$appname [environment: section]
+~/.dancer/$appname [root param]
+~/.dancer [not implemented now, may be in future]
+/etc/dancer.conf
+
+Config format: YAML for first to and any ini-style (as for now) for /etc/dancder.conf
+
 Config example
 ===============
 /home/user/.dancer/app
 
 # path to app: /home/user/app
 path: app
+
+# default environment - useful to set 'development' on developer's laptop during 
+# development and 'production' on production server
+env: development
+
 production:
   # -l /home/user/app/app.sock
   method: socket

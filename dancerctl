@@ -7,7 +7,7 @@
 #
 # License: BSD 2-Clause License (http://en.wikipedia.org/wiki/BSD_licenses)
 #
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use 5.10.1;
 use feature 'switch';
@@ -58,7 +58,6 @@ my ($home,$user,$app,$action,$env);
 (     $action     ) = @ARGV if not $root and $argc == 1;
 $user   ||= $ENV{USER};
 $action ||= 'help';
-$env    ||= $default->{env};
 $home     = $ENV{HOME};
 
 if ( $debug ) {
@@ -89,8 +88,9 @@ if ( $app ) {
 sub start {
 	my ($user,$home,$app,$env) = @_;
 
-	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt) 
-		= parse_user_config($user,$home,$app,$env);
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt);
+	($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt) = parse_user_config($user,$home,$app,$env);
+
 	
 	die "Error: wrong method '$method'" unless $method =~ /^socket|port$/;
 	
@@ -114,6 +114,7 @@ sub start {
 	system($cmd);
 	say "Started $app in $env mode.";
 	say "Browse at http://$listen" if $method eq 'port';
+	say "Listen on $listen"        if $method eq 'socket';
 }
 #===============================================================================
 sub parse_user_config {
@@ -123,6 +124,9 @@ sub parse_user_config {
 	$p = $home.'/'.$default->{conf}.'/'.$app if -d $home.'/'.$default->{conf};
 	$c = Config::Auto::parse($p, format => "yaml") if -f $p;
 	die "no config $p" unless -f $p;
+	
+	$env    ||= $c->{env};
+	$env    ||= $default->{env};
 	
 	my $app_path  = $home.'/'; $app_path .= $c->{path} || $default->{path}.$app;
 	
@@ -163,14 +167,14 @@ sub parse_user_config {
 	
 	my $opt      = $c->{$env}->{opt};
 	
-	return ($app_path,$server,$workers,$method,$listen,$pidfile,$opt);
+	return ($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt);
 }
 #===============================================================================
 sub status {
 	my ($user,$home,$app,$env) = @_;
 
-	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt) 
-		= parse_user_config($user,$home,$app,$env);
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt);
+	($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt) = parse_user_config($user,$home,$app,$env);
 
 	# based on web_ctl.pl by Puneet Kishor, https://github.com/punkish/web_ctl
 	# tested under Ubuntu 11.04
@@ -206,8 +210,8 @@ sub status {
 sub stop {
 	my ($user,$home,$app,$env,$force) = @_;
 
-	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt) 
-		= parse_user_config($user,$home,$app,$env);
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt);
+	($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt) = parse_user_config($user,$home,$app,$env);
 
 	unless (-e $pidfile) {
 		say "The app '$app' doesn't seem to be running... nothing to do.";
