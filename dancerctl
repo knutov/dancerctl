@@ -41,6 +41,7 @@ $default->{env}       ||= 'production'; # default environment
 $default->{path}      ||= 'apps/';      # relative to $home prefix to path with all apps
 $default->{method}    ||= 'port';
 $default->{autoall}   ||= 1;            # auto _all action if no app specified
+$default->{autostart} ||= undef;        # autostart is enabled for all apps by default if enabled
 $default->{debug}     ||= undef;
 
 my $debug = $default->{debug};
@@ -79,10 +80,47 @@ if ( $app ) {
 	status($user,$home,$app,$env)  if $action eq 'status' ;
 	restart($user,$home,$app,$env) if $action eq 'restart' ;
 } else {
-	start_all($user)   if $action eq 'start';
-	stop_all($user)    if $action eq 'stop'  ;
+	start_all($user)   if $action eq 'startall';
+	stop_all($user)    if $action eq 'stopall'  ;
 	status_all($user)  if $action eq 'status' ;
 	restart_all($user) if $action eq 'restart' ;
+}
+#===============================================================================
+# starts all apps of user with default environment
+sub start_all {
+	my $user = shift;
+	my @apps = get_user_apps($user);
+
+	foreach my $f ( @apps ) {
+		my $p = $home.'/'.$default->{conf}.'/'.$f;
+		my $c = Config::Auto::parse($p, format => "yaml");
+		start($user,$home,$f) if $c->{autostart} or (not defined $c->{autostart} and $default->{autostart});
+	}
+}
+#===============================================================================
+# stops all apps of user
+sub stop_all {
+	my $user = shift;
+	my @apps = get_user_apps($user);
+	foreach my $f ( @apps ) {
+		stop($user,$home,$f);
+	}
+}
+#===============================================================================
+sub get_user_apps {
+	my $user = shift or return undef;
+	my $path = $home.'/'.$default->{conf};
+	my @files;
+	my @dirs;
+	opendir DIR, $path or die "$path: $!\n";
+	for (readdir DIR) {
+		next if /^\.\.?$/;
+		push @files => $_ if -f "$path/$_";
+		push @dirs => $_ if -d _;
+	}
+	closedir DIR;
+	@files = sort @files; # each file is app
+	return @files;
 }
 #===============================================================================
 sub start {
@@ -142,10 +180,10 @@ sub parse_user_config {
 	
 	my $listen;
 	if ( $method eq 'socket' ) {
-		my $sock = $c->{$env}->{socket_path} || $default->{sockets};
+		my $sock = $c->{$env}->{socket_path} || $c->{socket_path} || $default->{sockets};
 		given ( $sock ) {
 			when ( m#^\/# )  {} # absolute path
-			when ( m#^~\/# ) { $sock =~ s/^~//; $sock = $home.$sock } # relative to user home
+			when ( m#^~\/# ) { $sock =~ s/^~//; $sock = $home.$sock.'/' } # relative to user home
 			default { $sock = $app_path.'/'.$sock}
 		}
 		my $socket_name = $c->{$env}->{socket_name} || $app.'.sock';

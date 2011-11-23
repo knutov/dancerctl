@@ -36,12 +36,18 @@ Config example
 ===============
 /home/user/.dancer/app
 
-# path to app: /home/user/app
+# path to app: app -> /home/user/app
 path: app
 
 # default environment - useful to set 'development' on developer's laptop during 
 # development and 'production' on production server
 env: development
+
+# start on startall
+# will be used global 'autostart' if not specified.
+# can be set as 1 in global and 0 on local to start_all all apps by default and 
+# not autostart this app
+autostart: 0
 
 production:
   # -l /home/user/app/app.sock
@@ -59,6 +65,7 @@ demo:
   port: 3999
   # this will be added to the end of plackup sting
   opt: "--backlog 1024 --max-requests 100"
+
   
 Install
 ========
