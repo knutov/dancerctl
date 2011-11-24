@@ -18,7 +18,7 @@ use strict;
 use Config::Auto;
 use Data::Dumper;
 
-my $global = $ENV{DANCERCTL} || '/etc/dancer.conf';  # better should be 644
+my $global = $ENV{DANCERCTL_CONF} || '/etc/dancer.conf';  # better should be 644
 
 
 # load defaults
@@ -44,8 +44,9 @@ $default->{autoall}   ||= 1;            # auto _all action if no app specified
 $default->{autostart} ||= undef;        # autostart is enabled for all apps by default if enabled
 $default->{debug}     ||= undef;
 $default->{chmod}     ||= '0666';       # default chmod for socket (and pid file?)
+# $default->{daemon}    ||= 1;            # should be plackup daemonized(-D)?                                  
 
-my $debug = $default->{debug};
+my $debug = $default->{debug}; $debug = $ENV{DANCERCTL_DEBUG} if $ENV{DANCERCTL_DEBUG};
 
 
 my $root = $< == 0; # true if user is root
@@ -146,8 +147,8 @@ sub get_user_apps {
 sub start {
 	my ($user,$home,$app,$env) = @_;
 
-	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt,$chmod);
-	($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt,$chmod) = 
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt,$chmod,$daemon);
+	($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt,$chmod,$daemon) = 
 		parse_user_config($user,$home,$app,$env);
 	
 	die "Error: wrong method '$method'" unless $method =~ /^socket|port$/;
@@ -165,7 +166,7 @@ sub start {
 	# TODO: add "-r -R path,path,path" support
 	# TODO: reload - reopens logs without restart
     
-	push @cmd, '-a ./bin/app.pl -D';
+	push @cmd, '-a ./bin/app.pl';
 	push @cmd, $opt if $opt;
 	push @cmd, '&& chmod', $chmod, $listen if $method eq 'socket' and $chmod;
 	
@@ -173,8 +174,8 @@ sub start {
 	
 	system($cmd);
 	say "Application '$app' started in '$env' mode.";
-	say "Browse at http://$listen" if $method eq 'port';
-	say "Listen on $listen"        if $method eq 'socket';
+	say "Browse at http://$listen" if $method eq 'port'   and $daemon;
+	say "Listen on $listen"        if $method eq 'socket' and $daemon;
 }
 #===============================================================================
 sub parse_user_config {
@@ -225,10 +226,15 @@ sub parse_user_config {
 	my $pidfile  = $pid.$pid_name;
 	
 	my $opt      = $c->{$env}->{opt};
+	$opt .= ' -r ' if $c->{$env}->{autoreload};
+	$opt .= ' -R ' . $c->{$env}->{autoreload_inc} if $c->{$env}->{autoreload_inc};
+	
+	my $daemon   = 1 unless $c->{$env}->{daemon} eq '0';
+	$opt .= ' -D ' if $daemon;
 	
 	my $chmod    = $c->{$env}->{chmod} || $c->{chmod} || $default->{chmod};
 	
-	return ($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt,$chmod);
+	return ($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt,$chmod,$daemon);
 }
 #===============================================================================
 sub status {
