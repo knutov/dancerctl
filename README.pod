@@ -18,15 +18,16 @@ Examples under not root user:
 
   dancerctl dancer_app start|stop|restart|status [environment]
   dancerctl startall|stopall|restartall|status|statusall
+  dancerctl help
 
 Examples under root(!) user: [not implemented]
 
   dancerctl user dancer_app start|stop|restart|status [environment]
 
-  dancerctl help
   dancerctl setup   [not implemented]
   dancerctl update  [not implemented]
   dancerctl list    [not implemented]
+  dancerctl init    [not implemented]
 
 =head2 Configs (ORDER BY priority DESC)
 
@@ -35,16 +36,16 @@ Examples under root(!) user: [not implemented]
   ~/.dancer [not implemented now, may be in future]
   /etc/dancer.conf
 
-Config format: YAML for the F<~/.dancer/$appname> and any ini-style (as for now) 
-for the F</etc/dancer.conf>
+Config format: YAML for the F<~/.dancer/$appname> and any ini-style (better 
+YAML too) for the F</etc/dancer.conf>
 
-=head2 Config example
+=head3 Config example
 
 See F<app.yml> which should be moved to F</home/user/.dancer/> and renamed to F<app>.
 
 =over
 
-    * NOTE! Names or parameters in config can be changed in next versions
+    * NOTE! Names of parameters in config can be changed in next versions
 
 =back
 
