@@ -36,7 +36,7 @@ Examples under root(!) user: [not implemented]
   /etc/dancer.conf
 
 Config format: YAML for the F<~/.dancer/$appname> and any ini-style (as for now) 
-for F</etc/dancer.conf>
+for the F</etc/dancer.conf>
 
 =head1 Config example
 

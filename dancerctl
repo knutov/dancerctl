@@ -159,9 +159,9 @@ sub start {
 	push @cmd, '--pid', $pidfile;
 	
 	# TODO: "--access-log $logs/$access.log"
-    # TODO: "--error-log $logs/$error.log"
-    # TODO: add "-r -R path,path,path" support
-    # TODO: reload - reopens logs without restart
+	# TODO: "--error-log $logs/$error.log"
+	# TODO: add "-r -R path,path,path" support
+	# TODO: reload - reopens logs without restart
     
 	push @cmd, '-a ./bin/app.pl -D';
 	push @cmd, $opt if $opt;
@@ -238,6 +238,8 @@ sub status {
 		# open(PS_F, "ps lax | grep '[s]tarman master\|TIME COMMAND'|");
 		open(PS_F, "ps lax | grep '[s]tarman master'|");
 
+		say 'F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND';
+		
 		PS: while (<PS_F>) 
 		{
 			chomp;
@@ -249,19 +251,14 @@ sub status {
 
 			my $pid_in_file = qx{head -1 $pidfile}; #"
 
-			say 'F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND';
-
 			if ($pid_in_file == $pid) {
 				my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size, $atime, $mtime, $ctime, $blksize, $blocks) = stat($pidfile);
 				say $line;
-				say 
-				"    application  : $app\n" . 
-				"    running since: " . localtime($ctime) . "\n" . 
-				"    in mode      : $env" ;
-				say
-				"    browse at    : http://$listen" if $method eq 'port';
-				say
-				"    listen at    : $listen" if $method eq 'socket';
+				say "\tApplication  : $app\n" . 
+					"\tRunning since: " . localtime($ctime) . "\n" . 
+					"\tEnvironment  : $env" ;
+				say "\tBrowse at    : http://$listen" if $method eq 'port';
+				say "\tListen at    : $listen" if $method eq 'socket';
 				last PS;
 			}
 		}
