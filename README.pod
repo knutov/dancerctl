@@ -27,7 +27,7 @@ Examples under root(!) user: [not implemented]
   dancerctl update  [not implemented]
   dancerctl list    [not implemented]
 
-=head1 Configs (in order of priority DESC)
+=head1 Configs (ORDER BY priority DESC)
 
   ~/.dancer/$appname [environment: section]
   ~/.dancer/$appname [root param]
@@ -49,7 +49,7 @@ perl 5.10 and L<Config::Auto> are required.
 
 C<dancerctl> was tested under modern version of Ubuntu (11.04). 
 Some parts (like 'status') may not work under different linuxes and OSes 
-(note hardcoded slashes).
+(note hardcoded slashes and format of C<ps lax>).
 
 =head1 Copyright
 
