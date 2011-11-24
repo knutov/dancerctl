@@ -8,8 +8,6 @@
 # env_name:
 # ---
 # where env_name can be 'production' for example.
-# Most variables can be set in root level, environment level and global config.
-# autoreload, autoreload_inc and daemon works only on environment level
 
 
 # path to app (relative for user's home dir): app -> /home/user/app
@@ -35,8 +33,6 @@ production:
   method: socket
   # same socket name as defaults
   socket_name: app.sock
-  # this will be added to the end of plackup sting
-  opt: "--backlog 1024 --max-requests 1000"
 development:
   # -w 1
   workers: 1
@@ -45,11 +41,8 @@ development:
   port: 3002
   # --pid /home/user/app/dev.pid
   pid_name: dev.pid
-  # If you want plackup to reload app on changes
-  # see L<plackup> for details
-  autoreload: 1
-  # ... whenever a file in any of the given directories changes
-  # comma-separated list of paths
-  autoreload_inc: "./lib/Routes,./lib,./lib/Dancer"
-  # usually you want to disable daemonize -D if -r -R are used
-  daemon: 0
+demo:
+  # -l localhost:3999
+  port: 3999
+  # this will be added to the end of plackup sting
+  opt: "--backlog 1024 --max-requests 100"
