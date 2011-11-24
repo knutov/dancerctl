@@ -1,0 +1,48 @@
+# Config for dancer' app for dancerctl
+# Normally should be placed to ~/.dancer folder and named 'app', where 'app' is 
+# the name of your dancer application.
+# All variables are optional except 'path' and environments. 
+# Minimal config looks like:
+# ---
+# path: app
+# env_name:
+# ---
+# where env_name can be 'production' for example.
+
+
+# path to app (relative for user's home dir): app -> /home/user/app
+path: app
+
+# default environment - useful to set 'development' on developer's laptop during 
+# development and 'production' on production server
+env: development
+
+# start on startall
+# will be used global 'autostart' if not specified.
+# can be set as 1 in global and 0 on local to start_all all apps by default and 
+# not autostart this app
+autostart: 0
+
+# Where the app.sock will be stored, can also be specified in each env.
+# The same with 'pid_path'
+socket_path: ~/tmp
+
+production:
+  # -l /home/user/app/app.sock # by default
+  # or /home/user/tmp/app.sock in this case (note 'socket_path' earlier)
+  method: socket
+  # same socket name as defaults
+  socket_name: app.sock
+development:
+  # -w 1
+  workers: 1
+  # -l localhost:3002
+  method: port
+  port: 3002
+  # --pid /home/user/app/dev.pid
+  pid_name: dev.pid
+demo:
+  # -l localhost:3999
+  port: 3999
+  # this will be added to the end of plackup sting
+  opt: "--backlog 1024 --max-requests 100"

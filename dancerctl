@@ -82,8 +82,8 @@ if ( $app ) {
 } else {
 	start_all($user)   if $action eq 'startall';
 	stop_all($user)    if $action eq 'stopall'  ;
-	status_all($user)  if $action eq 'status' ;
-	restart_all($user) if $action eq 'restart' ;
+	status_all($user)  if $action eq 'statusall' ;
+	restart_all($user) if $action eq 'restartall' ;
 }
 #===============================================================================
 # starts all apps of user with default environment
@@ -104,6 +104,23 @@ sub stop_all {
 	my @apps = get_user_apps($user);
 	foreach my $f ( @apps ) {
 		stop($user,$home,$f);
+	}
+}
+#===============================================================================
+# restart all apps of user, not runned apps with autostart will also be started
+sub restart_all {
+	my $user = shift;
+	stop_all($user);
+	start_all($user);
+}
+#===============================================================================
+# status for all apps of user (for default environment)
+# TODO: check for every environment
+sub status_all {
+	my $user = shift;
+	my @apps = get_user_apps($user);
+	foreach my $f ( @apps ) {
+		status($user,$home,$f);
 	}
 }
 #===============================================================================
@@ -194,7 +211,7 @@ sub parse_user_config {
 		die "Error: wrong method '$method'";
 	}
 	
-	my $pid = $c->{$env}->{pid} || $default->{pids};
+	my $pid = $c->{$env}->{pid_path} || $c->{pid_path} || $default->{pids};
 	given ( $pid ) {
 		when ( m#^\/# )  {} # absolute path
 		when ( m#^~\/# ) { $pid =~ s/^~//; $pid = $home.$pid } # relative to user home

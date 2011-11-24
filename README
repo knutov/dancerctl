@@ -22,6 +22,7 @@ dancerctl user dancer_app start|stop|restart|status [environment]
 dancerctl help
 dancerctl setup   [not implemented]
 dancerctl update  [not implemented]
+dancerctl list    [not implemented]
 
 Configs (in order of priority DESC)
 ====================================
@@ -30,43 +31,13 @@ Configs (in order of priority DESC)
 ~/.dancer [not implemented now, may be in future]
 /etc/dancer.conf
 
-Config format: YAML for first to and any ini-style (as for now) for /etc/dancder.conf
+Config format: YAML for the "~/.dancer/$appname" and any ini-style (as for now) 
+for /etc/dancder.conf
 
 Config example
 ===============
-/home/user/.dancer/app
+See app.yml which should be moved to /home/user/.dancer/ and renamed to 'app'.
 
-# path to app: app -> /home/user/app
-path: app
-
-# default environment - useful to set 'development' on developer's laptop during 
-# development and 'production' on production server
-env: development
-
-# start on startall
-# will be used global 'autostart' if not specified.
-# can be set as 1 in global and 0 on local to start_all all apps by default and 
-# not autostart this app
-autostart: 0
-
-production:
-  # -l /home/user/app/app.sock
-  method: socket
-development:
-  # -w 1
-  workers: 1
-  # -l localhost:3002
-  method: port
-  port: 3002
-  # --pid /home/user/app/dev.pid
-  pid_name: dev.pid
-demo:
-  # -l localhost:3999
-  port: 3999
-  # this will be added to the end of plackup sting
-  opt: "--backlog 1024 --max-requests 100"
-
-  
 Install
 ========
 Cpanminus and perl 5.10 are required.
@@ -74,7 +45,7 @@ Cpanminus and perl 5.10 are required.
 cpanm Config::Auto
 
 'dancerctl' was tested under modern version of Ubuntu (11.04). 
-Some part (like 'status') may not work under different linuxes and OSes 
+Some parts (like 'status') may not work under different linuxes and OSes 
 (note hardcoded slashes).
 
 
