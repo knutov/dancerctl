@@ -7,7 +7,7 @@
 #
 # License: BSD 2-Clause License (http://en.wikipedia.org/wiki/BSD_licenses)
 #
-our $VERSION = '0.02';
+our $VERSION = '0.03-dev';
 
 use 5.10.1;
 use feature 'switch';
@@ -311,8 +311,7 @@ sub trim {
 }
 #===============================================================================
 sub help {
-	# TODO: print usage;
-	say "dancerctl version $VERSION, see https://github.com/knutov/dancerctl";
-	say "Usage:";
-	say "    dancerctl dancer_app start|stop|restart|status [environment]";
+	say "dancerctl version $VERSION, Copyright (c) 2011, Nick Knutov, nick\@knutov.com";
+	say "Usage: dancerctl action [appname [environment]]";
+	say "Please see https://github.com/knutov/dancerctl for more help";
 }
