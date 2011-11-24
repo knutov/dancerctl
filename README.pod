@@ -1,11 +1,11 @@
 =pod
 
-=head1 NAME
+=head1 dancerctl
 
 dancerctl - Like apachectl for perl/Dancer apps. 
 Small tool that can start/stop/restart Dancer apps.
 
-=head1 Usage
+=head2 Usage
 
   dancerctl [appname] action [environment]
 
@@ -28,7 +28,7 @@ Examples under root(!) user: [not implemented]
   dancerctl update  [not implemented]
   dancerctl list    [not implemented]
 
-=head1 Configs (ORDER BY priority DESC)
+=head2 Configs (ORDER BY priority DESC)
 
   ~/.dancer/$appname [environment: section]
   ~/.dancer/$appname [root param]
@@ -38,11 +38,28 @@ Examples under root(!) user: [not implemented]
 Config format: YAML for the F<~/.dancer/$appname> and any ini-style (as for now) 
 for the F</etc/dancer.conf>
 
-=head1 Config example
+=head2 Config example
 
 See F<app.yml> which should be moved to F</home/user/.dancer/> and renamed to F<app>.
 
-=head1 Install
+=over
+
+    * NOTE! Names or parameters in config can be changed in next versions
+
+=back
+
+= head3 Global %ENV params
+
+It is possible to use to global parameters in %ENV:
+
+  DANCERCTL_CONF  - default config for dancerctl, instead of /etc/dancer.conf
+  DANCERCTL_DEBUG - enable/disable debug mode, has more priority, then in dancer.conf
+  
+  Examples:
+    export DANCERCTL_CONF=/path/to/local/dancer.conf
+    DANCERCTL_DEBUG=1 dancerctl statusall
+
+=head2 Install
 
 perl 5.10 and L<Config::Auto> are required.
 
@@ -52,11 +69,11 @@ C<dancerctl> was tested under modern version of Ubuntu (11.04).
 Some parts (like 'status') may not work under different linuxes and OSes 
 (note hardcoded slashes and format of C<ps lax>).
 
-=head1 Copyright
+=head2 Copyright
 
 Copyright (c) 2011, Nick Knutov, nick@knutov.com, L<https://github.com/knutov/dancerctl>
 
-=head1 License
+=head2 License
 
 BSD 2-Clause License (L<http://en.wikipedia.org/wiki/BSD_licenses>)
 
