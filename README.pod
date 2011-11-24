@@ -1,0 +1,63 @@
+=pod
+=head1 NAME
+
+dancerctl - Like apachectl for perl/Dancer apps. 
+Small tool that can start/stop/restart Dancer apps.
+
+=head1 Usage
+
+  dancerctl [appname] action [environment]
+
+  Where:
+  action      - start/stop/restart. 
+                Will start/stop/restart all available apps if no $appname is specified [not implemented now]
+  environment - usually 'development' or 'production'
+
+Examples under not root user:
+
+  dancerctl dancer_app start|stop|restart|status [environment]
+
+Examples under root(!) user: [not implemented]
+
+  dancerctl user dancer_app start|stop|restart|status [environment]
+
+  dancerctl help
+  dancerctl setup   [not implemented]
+  dancerctl update  [not implemented]
+  dancerctl list    [not implemented]
+
+
+=head1 Configs (in order of priority DESC)
+
+  ~/.dancer/$appname [environment: section]
+  ~/.dancer/$appname [root param]
+  ~/.dancer [not implemented now, may be in future]
+  /etc/dancer.conf
+
+Config format: YAML for the "~/.dancer/$appname" and any ini-style (as for now) 
+for /etc/dancder.conf
+
+=head1 Config example
+
+See app.yml which should be moved to /home/user/.dancer/ and renamed to 'app'.
+
+=head1 Install
+
+Cpanminus and perl 5.10 are required.
+
+cpanm Config::Auto
+
+'dancerctl' was tested under modern version of Ubuntu (11.04). 
+Some parts (like 'status') may not work under different linuxes and OSes 
+(note hardcoded slashes).
+
+
+=head1 Copyright
+
+Copyright (c) 2011, Nick Knutov, nick@knutov.com, https://github.com/knutov/dancerctl
+
+=head1 License
+
+BSD 2-Clause License (L<http://en.wikipedia.org/wiki/BSD_licenses>)
+
+=cut
