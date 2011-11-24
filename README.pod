@@ -1,4 +1,5 @@
 =pod
+
 =head1 NAME
 
 dancerctl - Like apachectl for perl/Dancer apps. 
@@ -33,8 +34,8 @@ Examples under root(!) user: [not implemented]
   ~/.dancer [not implemented now, may be in future]
   /etc/dancer.conf
 
-Config format: YAML for the "~/.dancer/$appname" and any ini-style (as for now) 
-for /etc/dancer.conf
+Config format: YAML for the F<~/.dancer/$appname> and any ini-style (as for now) 
+for F</etc/dancer.conf>
 
 =head1 Config example
 
@@ -46,14 +47,13 @@ perl 5.10 and L<Config::Auto> are required.
 
   cpanm Config::Auto
 
-T<dancerctl> was tested under modern version of Ubuntu (11.04). 
+C<dancerctl> was tested under modern version of Ubuntu (11.04). 
 Some parts (like 'status') may not work under different linuxes and OSes 
 (note hardcoded slashes).
 
-
 =head1 Copyright
 
-Copyright (c) 2011, Nick Knutov, L<nick@knutov.com>, L<https://github.com/knutov/dancerctl>
+Copyright (c) 2011, Nick Knutov, nick@knutov.com, L<https://github.com/knutov/dancerctl>
 
 =head1 License
 
