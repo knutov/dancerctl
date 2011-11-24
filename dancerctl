@@ -51,14 +51,14 @@ my $debug = $default->{debug}; $debug = $ENV{DANCERCTL_DEBUG} if $ENV{DANCERCTL_
 
 my $root = $< == 0; # true if user is root
 my $argc = scalar(@ARGV);
-my ($home,$user,$app,$action,$env);
-($user,$app,$action,$env) = @ARGV if $root and $argc == 4;
-($user,$app,$action     ) = @ARGV if $root and $argc == 3;
-($user,     $action     ) = @ARGV if $root and $argc == 2;
-(           $action     ) = @ARGV if $root and $argc == 1;
-($app,$action,$env) = @ARGV if not $root and $argc == 3;
-($app,$action     ) = @ARGV if not $root and $argc == 2;
-(     $action     ) = @ARGV if not $root and $argc == 1;
+my ($home,$user,$action,$app,$env);
+($user,$action,$app,$env) = @ARGV if $root and $argc == 4;
+($user,$action,$app,    ) = @ARGV if $root and $argc == 3;
+($user,$action,         ) = @ARGV if $root and $argc == 2;
+(      $action          ) = @ARGV if $root and $argc == 1;
+($action,$app,$env) = @ARGV if not $root and $argc == 3;
+($action,$app     ) = @ARGV if not $root and $argc == 2;
+($action          ) = @ARGV if not $root and $argc == 1;
 $user   ||= $ENV{USER};
 $action ||= 'help';
 $home     = $ENV{HOME};

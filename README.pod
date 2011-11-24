@@ -1,28 +1,28 @@
-=pod
-
 =head1 dancerctl
 
 dancerctl - Like apachectl for perl/Dancer apps. 
 Small tool that can start/stop/restart Dancer apps.
 
-=head2 Usage
+=head3 Usage
 
-  dancerctl [appname] action [environment]
+  dancerctl action [appname [environment]]
 
   Where:
-  action      - start/stop/restart/status. 
-                Will start/stop/restart all available apps if no $appname is specified [not implemented now]
-  environment - usually 'development' or 'production'
+  action      - start|stop|restart|status|help or startall|stopall|restartall|statusall
+                Will start/stop/restart default environment if no 'appname' is specified.
+  environment - usually 'development' or 'production' (by default)
 
 Examples under not root user:
 
-  dancerctl dancer_app start|stop|restart|status [environment]
+  dancerctl start|stop|restart|status app [environment]
   dancerctl startall|stopall|restartall|status|statusall
   dancerctl help
 
 Examples under root(!) user: [not implemented]
 
-  dancerctl user dancer_app start|stop|restart|status [environment]
+  dancerctl user start|stop|restart|status app [environment]
+
+Not implemented now, but will be in future
 
   dancerctl setup   [not implemented]
   dancerctl update  [not implemented]
