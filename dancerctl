@@ -167,7 +167,7 @@ sub start {
     
 	push @cmd, '-a ./bin/app.pl -D';
 	push @cmd, $opt if $opt;
-	push @cmd, '&& chmod', $chmod, $listen if $method eq 'socket';
+	push @cmd, '&& chmod', $chmod, $listen if $method eq 'socket' and $chmod;
 	
 	my $cmd = join(" ", @cmd); say $cmd if $debug;
 	
