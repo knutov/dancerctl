@@ -176,10 +176,9 @@ sub start {
 sub parse_user_config {
 	my ($user,$home,$app,$env) = @_;
 	my ($p,$c);
-	# $p = $home.'/'.$default->{conf}          if -f $home.'/'.$default->{conf};
 	$p = $home.'/'.$default->{conf}.'/'.$app if -d $home.'/'.$default->{conf};
-	$c = Config::Auto::parse($p, format => "yaml") if -f $p;
-	die "no config $p" unless -f $p;
+	die "Error: no config $p" unless -f $p;
+	$c = Config::Auto::parse($p, format => "yaml");
 	
 	$env    ||= $c->{env};
 	$env    ||= $default->{env};
@@ -301,7 +300,8 @@ sub trim {
 #===============================================================================
 sub help {
 	# TODO: print usage;
-	say "dancerctl version $VERSION";
+	say "dancerctl version $VERSION, see https://github.com/knutov/dancerctl";
 	say "Usage:";
-	say "   dancerctl dancer_app start|stop|restart|status [environment]";
+	say "    dancerctl dancer_app start|stop|restart|status [environment]";
+	
 }
