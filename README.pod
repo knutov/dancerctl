@@ -9,7 +9,7 @@ Small tool that can start/stop/restart Dancer apps.
   dancerctl [appname] action [environment]
 
   Where:
-  action      - start/stop/restart. 
+  action      - start/stop/restart/status. 
                 Will start/stop/restart all available apps if no $appname is specified [not implemented now]
   environment - usually 'development' or 'production'
 
@@ -26,7 +26,6 @@ Examples under root(!) user: [not implemented]
   dancerctl update  [not implemented]
   dancerctl list    [not implemented]
 
-
 =head1 Configs (in order of priority DESC)
 
   ~/.dancer/$appname [environment: section]
@@ -35,26 +34,26 @@ Examples under root(!) user: [not implemented]
   /etc/dancer.conf
 
 Config format: YAML for the "~/.dancer/$appname" and any ini-style (as for now) 
-for /etc/dancder.conf
+for /etc/dancer.conf
 
 =head1 Config example
 
-See app.yml which should be moved to /home/user/.dancer/ and renamed to 'app'.
+See F<app.yml> which should be moved to F</home/user/.dancer/> and renamed to F<app>.
 
 =head1 Install
 
-Cpanminus and perl 5.10 are required.
+perl 5.10 and L<Config::Auto> are required.
 
-cpanm Config::Auto
+  cpanm Config::Auto
 
-'dancerctl' was tested under modern version of Ubuntu (11.04). 
+T<dancerctl> was tested under modern version of Ubuntu (11.04). 
 Some parts (like 'status') may not work under different linuxes and OSes 
 (note hardcoded slashes).
 
 
 =head1 Copyright
 
-Copyright (c) 2011, Nick Knutov, nick@knutov.com, https://github.com/knutov/dancerctl
+Copyright (c) 2011, Nick Knutov, L<nick@knutov.com>, L<https://github.com/knutov/dancerctl>
 
 =head1 License
 
