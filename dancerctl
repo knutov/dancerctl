@@ -73,8 +73,9 @@ if ( $debug ) {
 help() if $action eq 'help';
 
 # FIXME: no root for now
-# TODO: action_all not implemented now
+
 $action = 'statusall' if not $app and $action eq 'status' and $default->{autoall};
+
 if ( $app ) {
 	start($user,$home,$app,$env)   if $action eq 'start';
 	stop($user,$home,$app,$env)    if $action eq 'stop'  ;
@@ -303,5 +304,4 @@ sub help {
 	say "dancerctl version $VERSION, see https://github.com/knutov/dancerctl";
 	say "Usage:";
 	say "    dancerctl dancer_app start|stop|restart|status [environment]";
-	
 }
