@@ -43,6 +43,7 @@ $default->{method}    ||= 'port';
 $default->{autoall}   ||= 1;            # auto _all action if no app specified
 $default->{autostart} ||= undef;        # autostart is enabled for all apps by default if enabled
 $default->{debug}     ||= undef;
+$default->{chmod}     ||= '0666';       # default chmod for socket (and pid file?)
 
 my $debug = $default->{debug};
 
@@ -145,9 +146,9 @@ sub get_user_apps {
 sub start {
 	my ($user,$home,$app,$env) = @_;
 
-	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt);
-	($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt) = parse_user_config($user,$home,$app,$env);
-
+	my ($app_path,$server,$workers,$method,$listen,$pidfile,$opt,$chmod);
+	($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt,$chmod) = 
+		parse_user_config($user,$home,$app,$env);
 	
 	die "Error: wrong method '$method'" unless $method =~ /^socket|port$/;
 	
@@ -166,8 +167,10 @@ sub start {
     
 	push @cmd, '-a ./bin/app.pl -D';
 	push @cmd, $opt if $opt;
+	push @cmd, '&& chmod', $chmod, $listen if $method eq 'socket';
 	
 	my $cmd = join(" ", @cmd); say $cmd if $debug;
+	
 	system($cmd);
 	say "Application '$app' started in '$env' mode.";
 	say "Browse at http://$listen" if $method eq 'port';
@@ -223,7 +226,9 @@ sub parse_user_config {
 	
 	my $opt      = $c->{$env}->{opt};
 	
-	return ($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt);
+	my $chmod    = $c->{$env}->{chmod} || $c->{chmod} || $default->{chmod};
+	
+	return ($app_path,$env,$server,$workers,$method,$listen,$pidfile,$opt,$chmod);
 }
 #===============================================================================
 sub status {
