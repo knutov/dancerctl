@@ -74,6 +74,7 @@ help() if $action eq 'help';
 
 # FIXME: no root for now
 # TODO: action_all not implemented now
+$action = 'statusall' if not $app and $action eq 'status' and $default->{autoall};
 if ( $app ) {
 	start($user,$home,$app,$env)   if $action eq 'start';
 	stop($user,$home,$app,$env)    if $action eq 'stop'  ;
@@ -167,7 +168,7 @@ sub start {
 	
 	my $cmd = join(" ", @cmd); say $cmd if $debug;
 	system($cmd);
-	say "Started $app in $env mode.";
+	say "Application '$app' started in '$env' mode.";
 	say "Browse at http://$listen" if $method eq 'port';
 	say "Listen on $listen"        if $method eq 'socket';
 }
@@ -192,8 +193,8 @@ sub parse_user_config {
 	my @cmd = ();
 	push @cmd, 'cd '.$app_path.' && ';
 	push @cmd, 'plackup -E '.$env;
-	my $server  = $c->{$env}->{server}  || $c->{server} || $default->{server};
-	my $workers = $c->{$env}->{workers} || $default->{workers};
+	my $server  = $c->{$env}->{server}  || $c->{server}  || $default->{server};
+	my $workers = $c->{$env}->{workers} || $c->{workers} || $default->{workers};
 	
 	my $listen;
 	if ( $method eq 'socket' ) {
@@ -234,25 +235,33 @@ sub status {
 	# based on web_ctl.pl by Puneet Kishor, https://github.com/punkish/web_ctl
 	# tested under Ubuntu 11.04
 	if (-e $pidfile) {
+		# open(PS_F, "ps lax | grep '[s]tarman master\|TIME COMMAND'|");
 		open(PS_F, "ps lax | grep '[s]tarman master'|");
 
 		PS: while (<PS_F>) 
 		{
 			chomp;
-			$_ = trim($_);
-			say $_;
-			#  F  UID   PID  PPID        F CPU PRI NI       SZ    RSS WCHAN     S             ADDR TTY           TIME CMD
-			#  ?  501  4882     1      104   0  31  0  2469860   4656 -      Ss   ffffff800e37f740 ??         0:00.08 starman master 
-			my ($f, $uid, $pid, $ppid, $f, $cpu, $pri, $ni, $sz, $rss, $wchan, $s, $addr, $tty, $time, $cmd) = split /\s+/;
+			my $line = $_ = trim($_);
+			# say $_;
+			# F   UID   PID  PPID      PRI   NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
+			# 1  1000  6460     1       20    0  25012 15532 poll_s Ss   ?          0:00 starman master
+			my ($f, $uid, $pid, $ppid, $pri, $ni, $sz, $rss, $wchan, $s,  $tty, $time, $cmd) = split /\s+/;
 
 			my $pid_in_file = qx{head -1 $pidfile}; #"
 
+			say 'F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND';
+
 			if ($pid_in_file == $pid) {
 				my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size, $atime, $mtime, $ctime, $blksize, $blocks) = stat($pidfile);
-				say "application: $app\n" . 
+				say $line;
+				say 
+				"    application  : $app\n" . 
 				"    running since: " . localtime($ctime) . "\n" . 
-				"    in mode      : $env\n" ;
-				# "    browse at    : $host" . ':' . $apps{$app}->{port};
+				"    in mode      : $env" ;
+				say
+				"    browse at    : http://$listen" if $method eq 'port';
+				say
+				"    listen at    : $listen" if $method eq 'socket';
 				last PS;
 			}
 		}
