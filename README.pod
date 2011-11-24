@@ -17,6 +17,7 @@ Small tool that can start/stop/restart Dancer apps.
 Examples under not root user:
 
   dancerctl dancer_app start|stop|restart|status [environment]
+  dancerctl startall|stopall|restartall|status|statusall
 
 Examples under root(!) user: [not implemented]
 
