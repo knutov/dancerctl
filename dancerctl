@@ -23,7 +23,7 @@ my $global = $ENV{DANCERCTL_CONF} || '/etc/dancer.conf';  # better should be 644
 
 # load defaults
 # FIXME: it assumes now that all users are in /home/
-my $default = Config::Auto::parse($global) if -f $global;
+my $default = Config::Auto::parse($global, format => "yaml") if -f $global;
 
 $default->{conf}      ||= '.dancer';    # default ~user/.dancer/appname
                                         # TODO: or, if not exists, 
@@ -355,7 +355,7 @@ sub help {
 	say "Please see https://github.com/knutov/dancerctl for more help";
 }
 __DATA__
-# This can also be in 'recommended:' section in /etc/dancer.conf
+# This can also be placed in 'recommended:' section in /etc/dancer.conf
 env: production
 autostart: 1
 production:
