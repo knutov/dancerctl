@@ -7,10 +7,16 @@ Small tool that can start/stop/restart Dancer apps.
 
   dancerctl action [appname [environment]]
 
-  Where:
-  action      - start|stop|restart|status|help|init or startall|stopall|restartall|statusall
-                Will start/stop/restart default environment if no 'appname' is specified.
-  environment - usually 'development' or 'production' (by default)
+Where C<action> can be
+
+  start, stop, restart
+  status
+  help
+  init
+  startall, stopall, restartall, statusall
+                
+C<environment> - usually 'development' or 'production' (by default).
+Default environment is used if no C<environment> specified.
 
 Examples under not root user:
 
