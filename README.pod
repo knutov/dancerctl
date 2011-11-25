@@ -22,8 +22,10 @@ Examples under not root user:
 =head3 dancerctl init
 
 C<init> will create config for app with default recommended values.
+Default config can be placed in C<recommended:> section to F</etc/dancer.conf> 
+otherwise the __DATA__ section of F<dancerctl> script will be used.
 
-  dancerctl init $appname $path [force]
+  dancerctl init appname path [force]
   
 =over
 
