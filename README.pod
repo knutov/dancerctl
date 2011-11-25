@@ -8,7 +8,7 @@ Small tool that can start/stop/restart Dancer apps.
   dancerctl action [appname [environment]]
 
   Where:
-  action      - start|stop|restart|status|help or startall|stopall|restartall|statusall
+  action      - start|stop|restart|status|help|init or startall|stopall|restartall|statusall
                 Will start/stop/restart default environment if no 'appname' is specified.
   environment - usually 'development' or 'production' (by default)
 
@@ -17,6 +17,31 @@ Examples under not root user:
   dancerctl start|stop|restart|status app [environment]
   dancerctl startall|stopall|restartall|status|statusall
   dancerctl help
+  dancerctl init appname path [force]
+  
+=head3 dancerctl init
+
+C<init> will create config for app with default recommended values.
+
+  dancerctl init $appname $path [force]
+  
+=over
+
+    * path counted from user dir: app -> /home/user/app
+    * when 'force' the config file will be overwritten if exists.
+
+=back
+
+Examples:
+  
+  # example 1: 
+      dancerctl init app projects/app
+  # example 2: 
+      cd path/to/app
+      dancerctl init app `pwd`
+  # example 3: config will be recreated
+      cd path/to/app
+      dancerctl init app `pwd` force
 
 Examples under root(!) user: [not implemented]
 
@@ -62,10 +87,10 @@ It is possible to use to global parameters in %ENV:
 
 =head2 Install
 
-perl 5.10 and L<Config::Auto> are required.
+perl 5.10, L<Config::Auto> and L<YAML::Tiny> are required.
 
   curl -L http://cpanmin.us -k | perl - --self-upgrade
-  cpanm Config::Auto
+  cpanm Config::Auto YAML::Tiny
   
   cd ~
   mkdir dancerctl

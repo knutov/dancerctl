@@ -56,10 +56,11 @@ my ($home,$user,$action,$app,$env);
 ($user,$action,$app,    ) = @ARGV if $root and $argc == 3;
 ($user,$action,         ) = @ARGV if $root and $argc == 2;
 (      $action          ) = @ARGV if $root and $argc == 1;
-($action,$app,$env) = @ARGV if not $root and $argc == 3;
+($action,$app,$env) = @ARGV if not $root and $argc >= 3;
 ($action,$app     ) = @ARGV if not $root and $argc == 2;
 ($action          ) = @ARGV if not $root and $argc == 1;
 $user   ||= $ENV{USER};
+# $action ||= @ARGV[0]; # TODO: add list of known actions and check it
 $action ||= 'help';
 $home     = $ENV{HOME};
 
@@ -72,7 +73,8 @@ if ( $debug ) {
 	say 'Environment: '.$env;
 }
 
-help() if $action eq 'help';
+help()                     if $action eq 'help';
+# shift @ARGV && init(@ARGV) if $action eq 'init';
 
 # FIXME: no root for now
 
@@ -80,14 +82,52 @@ $action = 'statusall' if not $app and $action eq 'status' and $default->{autoall
 
 if ( $app ) {
 	start($user,$home,$app,$env)   if $action eq 'start';
-	stop($user,$home,$app,$env)    if $action eq 'stop'  ;
-	status($user,$home,$app,$env)  if $action eq 'status' ;
-	restart($user,$home,$app,$env) if $action eq 'restart' ;
+	stop($user,$home,$app,$env)    if $action eq 'stop';
+	status($user,$home,$app,$env)  if $action eq 'status';
+	restart($user,$home,$app,$env) if $action eq 'restart';
+	init($user,$home,$app,$env)    if $action eq 'init'; # env is path here
 } else {
 	start_all($user)   if $action eq 'startall';
 	stop_all($user)    if $action eq 'stopall'  ;
 	status_all($user)  if $action eq 'statusall' ;
 	restart_all($user) if $action eq 'restartall' ;
+}
+#===============================================================================
+# init will create default recommended config
+# format:  dancerctl init $appname $path [force]
+# note:    path counted from user dir: app -> /home/user/app
+#          when 'force' the config file will be overwritten if exists.
+# example 1: 
+#   dancerctl init app projects/app
+# example 2: 
+#   cd path/to/app
+#   dancerctl init app `pwd`  
+sub init {
+	my($user,$home,$app,$path) = @_;
+	$path =~ s#^$home\/##;
+
+	# die Dumper($user,$home,$app,$path);
+	
+	my $confdir = $home.'/'.$default->{conf};
+	system("mkdir -p ".$confdir) unless -d $confdir;
+	
+	my $conf = $confdir.'/'.$app;
+	say "Config for '$app' already exists. Please remove $conf first." and exit(-1)
+		if -f $conf and not $ARGV[3] eq 'force';
+	say "Config for '$app' already exists. If will be overwritten."
+		if -f $conf and $ARGV[3] eq 'force';
+
+	use YAML::Tiny;
+	
+	my $p; while (<DATA>) { $p .= $_ }
+	my $yaml = YAML::Tiny->read_string($p);
+	$yaml->[0] = $default->{recommended} if $default->{recommended};
+	$yaml->[0]->{path} = $path;
+	$yaml->write($conf);
+	
+	# TODO: find the way to keep key order
+	
+	say "Config for '$app' successfully written, please edit $conf (and change port) before first run."	
 }
 #===============================================================================
 # starts all apps of user with default environment
@@ -173,7 +213,7 @@ sub start {
 	my $cmd = join(" ", @cmd); say $cmd if $debug;
 	
 	system($cmd);
-	say "Application '$app' started in '$env' mode.";
+	say "Application '$app' started in '$env' mode."       if $daemon;
 	say "Browse at http://$listen" if $method eq 'port'   and $daemon;
 	say "Listen on $listen"        if $method eq 'socket' and $daemon;
 }
@@ -315,3 +355,19 @@ sub help {
 	say "Usage: dancerctl action [appname [environment]]";
 	say "Please see https://github.com/knutov/dancerctl for more help";
 }
+__DATA__
+# This can also be in 'recommended:' section in /etc/dancer.conf
+env: production
+autostart: 1
+production:
+  workers: 2
+  method: socket
+development:
+  workers: 1
+  method: port
+  port: 3000
+  pid_name: dev.pid
+  autoreload: 1
+  autoreload_inc: "./lib/Routes,./lib"
+  daemon: 0
+
