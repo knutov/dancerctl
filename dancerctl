@@ -266,8 +266,7 @@ sub parse_user_config {
 	my $pidfile  = $pid.$pid_name;
 	
 	my $opt      = $c->{$env}->{opt};
-	$opt .= ' -r ' if $c->{$env}->{autoreload};
-	$opt .= ' -R ' . $c->{$env}->{autoreload_inc} if $c->{$env}->{autoreload_inc};
+	$opt .= ' -r -R ' . $c->{$env}->{autoreload} if $c->{$env}->{autoreload};
 	
 	my $daemon   = 1 unless $c->{$env}->{daemon} eq '0';
 	$opt .= ' -D ' if $daemon;
@@ -367,7 +366,6 @@ development:
   method: port
   port: 3000
   pid_name: dev.pid
-  autoreload: 1
-  autoreload_inc: "./lib/Routes,./lib"
+  autoreload: "./lib/Routes,./lib"
   daemon: 0
 
