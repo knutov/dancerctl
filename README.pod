@@ -63,17 +63,17 @@ Not implemented now, but will be in future
 
 =head2 Configs (ORDER BY priority DESC)
 
-  ~/.dancer/$appname [environment: section]
-  ~/.dancer/$appname [root param]
-  ~/.dancer [not implemented now, may be in future]
-  /etc/dancer.conf
+  ~/.dancerctl/$appname [environment: section]
+  ~/.dancerctl/$appname [root param]
+  ~/.dancerctl [not implemented now, may be in future]
+  /etc/dancerctl.conf
 
-Config format: YAML for the F<~/.dancer/$appname> and any ini-style (better 
+Config format: YAML for the F<~/.dancerctl/$appname> and any ini-style (better 
 YAML too) for the F</etc/dancer.conf>
 
 =head3 Config example
 
-See F<app.yml> which should be moved to F</home/user/.dancer/> and renamed to F<app>.
+See F<app.yml> which should be moved to F</home/user/.dancerctl/> and renamed to F<app>.
 
 =over
 

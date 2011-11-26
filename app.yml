@@ -1,11 +1,11 @@
 # Config for dancer' app for dancerctl
-# Normally should be placed to ~/.dancer folder and named 'app', where 'app' is 
-# the name of your dancer application.
+# Normally should be placed to ~/.dancerctl folder and named 'app', 
+# where 'app' is the name of your dancer application.
 # All variables are optional except 'path' and environments. 
 # Minimal config looks like:
 # ---
 # path: app
-# env_name:
+# production:
 # ---
 # where env_name can be 'production' for example.
 # Most variables can be set in root level, environment level and global config.

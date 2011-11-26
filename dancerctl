@@ -25,9 +25,9 @@ my $global = $ENV{DANCERCTL_CONF} || '/etc/dancer.conf';  # better should be 644
 # FIXME: it assumes now that all users are in /home/
 my $default = Config::Auto::parse($global, format => "yaml") if -f $global;
 
-$default->{conf}      ||= '.dancer';    # default ~user/.dancer/appname
+$default->{conf}      ||= '.dancerctl'; # default ~user/.dancerctl/appname
                                         # TODO: or, if not exists, 
-                                        #       ~user/.dancer as one config 
+                                        #       ~user/.dancerctl as one config 
                                         #       for all apps 
 $default->{workers}   ||= 2;            # default number of workers
 $default->{host}      ||= 'localhost';  # default host to bind (localhost, ip or *)
@@ -106,8 +106,6 @@ sub init {
 	my($user,$home,$app,$path) = @_;
 	$path =~ s#^$home\/##;
 
-	# die Dumper($user,$home,$app,$path);
-	
 	my $confdir = $home.'/'.$default->{conf};
 	system("mkdir -p ".$confdir) unless -d $confdir;
 	
