@@ -28,7 +28,7 @@ Examples under not root user:
 =head3 dancerctl init
 
 C<init> will create config for app with default recommended values.
-Default config can be placed in C<recommended:> section to F</etc/dancer.conf> 
+Default config can be placed in C<recommended:> section to F</etc/dancerctl.conf> 
 otherwise the C<__DATA__> section of F<dancerctl> script will be used.
 
   dancerctl init appname path [force]
@@ -69,7 +69,7 @@ Not implemented now, but will be in future
   /etc/dancerctl.conf
 
 Config format: YAML for the F<~/.dancerctl/$appname> and any ini-style (better 
-YAML too) for the F</etc/dancer.conf>
+YAML too) for the F</etc/dancerctl.conf>
 
 =head3 Config example
 
@@ -85,11 +85,11 @@ See F<app.yml> which should be moved to F</home/user/.dancerctl/> and renamed to
 
 It is possible to use to global parameters in %ENV:
 
-  DANCERCTL_CONF  - default config for dancerctl, instead of /etc/dancer.conf
-  DANCERCTL_DEBUG - enable/disable debug mode, has more priority, then in dancer.conf
+  DANCERCTL_CONF  - default config for dancerctl, instead of /etc/dancerctl.conf
+  DANCERCTL_DEBUG - enable/disable debug mode, has more priority, then in dancerctl.conf
   
   Examples:
-    export DANCERCTL_CONF=/path/to/local/dancer.conf
+    export DANCERCTL_CONF=/path/to/local/dancerctl.conf
     DANCERCTL_DEBUG=1 dancerctl statusall
 
 =head2 Install

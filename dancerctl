@@ -18,7 +18,7 @@ use strict;
 use Config::Auto;
 use Data::Dumper;
 
-my $global = $ENV{DANCERCTL_CONF} || '/etc/dancer.conf';  # better should be 644
+my $global = $ENV{DANCERCTL_CONF} || '/etc/dancerctl.conf';  # better should be 644
 
 
 # load defaults
@@ -353,7 +353,7 @@ sub help {
 	say "Please see https://github.com/knutov/dancerctl for more help";
 }
 __DATA__
-# This can also be placed in 'recommended:' section in /etc/dancer.conf
+# This can also be placed in 'recommended:' section in /etc/dancerctl.conf
 env: production
 autostart: 1
 production:
