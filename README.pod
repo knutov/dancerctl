@@ -24,6 +24,16 @@ Examples under not root user:
   dancerctl startall|stopall|restartall|status|statusall
   dancerctl help
   dancerctl init appname path [force]
+
+Examples under root(!) user: [not implemented now]
+
+  dancerctl user [action [app [environment]]]
+
+Not implemented now, but will be in future
+
+  dancerctl setup   [not implemented]
+  dancerctl update  [not implemented]
+  dancerctl list    [not implemented]
   
 =head3 dancerctl init
 
@@ -50,16 +60,6 @@ Examples:
   # example 3: config will be recreated
       cd path/to/app
       dancerctl init app `pwd` force
-
-Examples under root(!) user: [not implemented now]
-
-  dancerctl user [action [app [environment]]]
-
-Not implemented now, but will be in future
-
-  dancerctl setup   [not implemented]
-  dancerctl update  [not implemented]
-  dancerctl list    [not implemented]
 
 =head2 Configs (ORDER BY priority DESC)
 
