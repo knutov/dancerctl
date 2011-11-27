@@ -54,3 +54,12 @@ development:
   autoreload: "./lib/Routes,./lib,./lib/Dancer"
   # usually you want to disable daemonize -D if -r -R are used
   daemon: 0
+
+# With env_alias ypu can use 
+# dancerctl start app env_alias
+# Example:
+# dancerctl start app dev # will start with 'development' environment
+env_alias:
+  dev: development
+  prod: production
+  

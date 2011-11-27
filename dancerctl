@@ -226,6 +226,11 @@ sub parse_user_config {
 	$env    ||= $c->{env};
 	$env    ||= $default->{env};
 	
+	$env = $c->{env_alias}->{$env} 
+		if not defined $c->{$env}
+			and defined $c->{env_alias}->{$env} 
+			and defined $c->{$c->{env_alias}->{$env}};
+	
 	my $app_path  = $home.'/'; $app_path .= $c->{path} || $default->{path}.$app;
 	
 	my $method = $c->{$env}->{method} || $default->{method};
@@ -366,4 +371,6 @@ development:
   pid_name: dev.pid
   autoreload: "./lib/Routes,./lib"
   daemon: 0
-
+env_alias:
+  dev: development
+  prod: production
