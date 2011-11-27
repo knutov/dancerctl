@@ -110,6 +110,9 @@ C<dancerctl> was tested under modern version of Ubuntu (11.04).
 Some parts (like 'status') may not work under different linuxes and OSes 
 (note hardcoded slashes and format of C<ps lax>).
 
+  You can get 'dev' branch with latest changes with
+  git clone git://github.com/knutov/dancerctl.git ./ -b dev  
+
 =head2 Copyright
 
 Copyright (c) 2011, Nick Knutov, nick@knutov.com, L<https://github.com/knutov/dancerctl>
