@@ -44,7 +44,7 @@ $default->{autoall}   ||= 1;            # auto _all action if no app specified
 $default->{autostart} ||= undef;        # autostart is enabled for all apps by default if enabled
 $default->{debug}     ||= undef;
 $default->{chmod}     ||= '0666';       # default chmod for socket (and pid file?)
-# $default->{daemon}    ||= 1;            # should be plackup daemonized(-D)?                                  
+# $default->{daemon}    ||= 1;            # should be plackup daemonized(-D)? Default: yes
 
 my $debug = $default->{debug}; $debug = $ENV{DANCERCTL_DEBUG} if $ENV{DANCERCTL_DEBUG};
 
@@ -60,7 +60,7 @@ my ($home,$user,$action,$app,$env);
 ($action,$app     ) = @ARGV if not $root and $argc == 2;
 ($action          ) = @ARGV if not $root and $argc == 1;
 $user   ||= $ENV{USER};
-# $action ||= @ARGV[0]; # TODO: add list of known actions and check it
+# $action ||= @ARGV[0];
 $action ||= 'help';
 $home     = $ENV{HOME};
 
@@ -74,6 +74,7 @@ if ( $action and $app and
 	$app    = $tmp;
 }
 
+# checking list of known actions
 unless ( $action =~ /^[start|stop|restart|status]{1}[all]{0,1}|help|init$/ ) {
 	help();
 	say "\nError: unknown action: $action\n";
@@ -132,14 +133,20 @@ sub init {
 		if -f $conf and $ARGV[3] eq 'force';
 
 	use YAML::Tiny;
-	
 	my $p; while (<DATA>) { $p .= $_ }
 	my $yaml = YAML::Tiny->read_string($p);
 	$yaml->[0] = $default->{recommended} if $default->{recommended};
 	$yaml->[0]->{path} = $path;
 	$yaml->write($conf);
 	
-	# TODO: find the way to keep key order
+	# TODO: find the way to keep key order. SortKeys = 0 does not help.
+	# use YAML;
+	# local $YAML::SortKeys = 0;
+	# my $p; while (<DATA>) { $p .= $_ }
+	# my $yaml = Load($p);
+	# $yaml = $default->{recommended} if $default->{recommended};
+	# $yaml->{path} = $path;
+	# YAML::DumpFile($conf, $yaml);
 	
 	say "Config for '$app' successfully written, please edit $conf (and change port) before first run."	
 }
@@ -217,7 +224,6 @@ sub start {
 	
 	# TODO: "--access-log $logs/$access.log"
 	# TODO: "--error-log $logs/$error.log"
-	# TODO: add "-r -R path,path,path" support
 	# TODO: reload - reopens logs without restart
     
 	push @cmd, '-a ./bin/app.pl';
