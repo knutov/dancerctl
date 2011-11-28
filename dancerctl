@@ -74,6 +74,12 @@ if ( $action and $app and
 	$app    = $tmp;
 }
 
+unless ( $action =~ /^[start|stop|restart|status]{1}[all]{0,1}|help|init$/ ) {
+	help();
+	say "\nError: unknown action: $action\n";
+	exit;
+}
+
 if ( $debug ) {
 	say 'Root?......: '.$root;
 	say 'Home.......: '.$home;
@@ -230,7 +236,11 @@ sub parse_user_config {
 	my ($user,$home,$app,$env) = @_;
 	my ($p,$c);
 	$p = $home.'/'.$default->{conf}.'/'.$app if -d $home.'/'.$default->{conf};
-	die "Error: no config $p" unless -f $p;
+	
+	say "Error: no config $p" and
+	say "You should create it first with `dancerctl init`" and exit 
+		unless -f $p;
+	
 	$c = Config::Auto::parse($p, format => "yaml");
 	
 	$env    ||= $c->{env};
