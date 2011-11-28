@@ -220,11 +220,10 @@ sub start {
 	
 	my $cmd = join(" ", @cmd); say $cmd if $debug;
 	
-	system($cmd);
-	#TODO: check status code
-	say "Application '$app' started in '$env' mode."       if $daemon;
-	say "Browse at http://$listen" if $method eq 'port'   and $daemon;
-	say "Listen on $listen"        if $method eq 'socket' and $daemon;
+	my $ok = system($cmd) == 0;
+	say "Application '$app' started in '$env' mode."       if $daemon and $ok;
+	say "Browse at http://$listen" if $method eq 'port'   and $daemon and $ok;
+	say "Listen on $listen"        if $method eq 'socket' and $daemon and $ok;
 }
 #===============================================================================
 sub parse_user_config {
