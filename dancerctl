@@ -64,6 +64,16 @@ $user   ||= $ENV{USER};
 $action ||= 'help';
 $home     = $ENV{HOME};
 
+# autodetect positions - you can use 'start app' and 'app start' now.
+if ( $action and $app and 
+	$action !~ /^start|stop|restart|status$/ and 
+	$app    =~ /^start|stop|restart|status$/ 
+) {
+	my $tmp = $action;
+	$action = $app;
+	$app    = $tmp;
+}
+
 if ( $debug ) {
 	say 'Root?......: '.$root;
 	say 'Home.......: '.$home;
@@ -211,6 +221,7 @@ sub start {
 	my $cmd = join(" ", @cmd); say $cmd if $debug;
 	
 	system($cmd);
+	#TODO: check status code
 	say "Application '$app' started in '$env' mode."       if $daemon;
 	say "Browse at http://$listen" if $method eq 'port'   and $daemon;
 	say "Listen on $listen"        if $method eq 'socket' and $daemon;
@@ -364,6 +375,7 @@ autostart: 1
 production:
   workers: 2
   method: socket
+  chmod: 0666
 development:
   workers: 1
   method: port
