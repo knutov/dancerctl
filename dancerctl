@@ -394,6 +394,7 @@ production:
 development:
   workers: 1
   method: port
+  host: *
   port: 3000
   pid_name: dev.pid
   autoreload: "./lib/Routes,./lib"
