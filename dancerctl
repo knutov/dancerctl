@@ -2,12 +2,12 @@
 #
 # dancerctl - like apachectl for perl/Dancer apps
 #
-# Copyright (c) 2011, Nick Knutov, nick@knutov.com
+# Copyright (c) 2011,2012, Nick Knutov, nick@knutov.com
 # https://github.com/knutov/dancerctl
 #
 # License: BSD 2-Clause License (http://en.wikipedia.org/wiki/BSD_licenses)
 #
-our $VERSION = '0.04';
+our $VERSION = '0.05-dev';
 
 use 5.10.1;
 use feature 'switch';
@@ -52,27 +52,21 @@ my $debug = $default->{debug}; $debug = $ENV{DANCERCTL_DEBUG} if $ENV{DANCERCTL_
 my $root = $< == 0; # true if user is root
 my $argc = scalar(@ARGV);
 my ($home,$user,$action,$app,$env);
-($user,$action,$app,$env) = @ARGV if $root and $argc == 4;
-($user,$action,$app,    ) = @ARGV if $root and $argc == 3;
-($user,$action,         ) = @ARGV if $root and $argc == 2;
-(      $action          ) = @ARGV if $root and $argc == 1;
-($action,$app,$env) = @ARGV if not $root and $argc >= 3;
-($action,$app     ) = @ARGV if not $root and $argc == 2;
-($action          ) = @ARGV if not $root and $argc == 1;
-$user   ||= $ENV{USER};
-# $action ||= @ARGV[0];
-$action ||= 'help';
-$home     = $ENV{HOME};
 
-# autodetect positions - you can use 'start app' and 'app start' now.
-if ( $action and $app and 
-	$action !~ /^start|stop|restart|status$/ and 
-	$app    =~ /^start|stop|restart|status$/ 
-) {
-	my $tmp = $action;
-	$action = $app;
-	$app    = $tmp;
-}
+# You should use `sudo` to run dancerctl under different users
+
+# Usage: dancerctl [app [env]] action
+# this way is more convinient if you should do something like
+# dancerctl app [env] start
+# dancerctl app [env] stop
+# numerous time
+
+( $app, $env, $action ) = @ARGV if $argc >= 3;
+( $app, $action )       = @ARGV if $argc == 2;
+( $action )             = @ARGV if $argc == 1;
+$user   ||= $ENV{USER};
+$action ||= 'help';
+$home     = $ENV{HOME}; # FIXME: should be changed to users's home?
 
 # checking list of known actions
 unless ( $action =~ /^[start|stop|restart|status]{1}[all]{0,1}|help|init$/ ) {
@@ -82,12 +76,14 @@ unless ( $action =~ /^[start|stop|restart|status]{1}[all]{0,1}|help|init$/ ) {
 }
 
 if ( $debug ) {
-	say 'Root?......: '.$root;
+	say "\nDebug mode:";
+	say 'Root?......: yes' if $root;
 	say 'Home.......: '.$home;
 	say 'User.......: '.$user;
 	say 'App........: '.$app;
 	say 'Action.....: '.$action;
 	say 'Environment: '.$env;
+	say;
 }
 
 help()                     if $action eq 'help';
@@ -230,7 +226,7 @@ sub start {
 	push @cmd, $opt if $opt;
 	push @cmd, '&& chmod', $chmod, $listen if $method eq 'socket' and $chmod;
 	
-	my $cmd = join(" ", @cmd); say $cmd if $debug;
+	my $cmd = join(" ", @cmd); say $cmd."\n" if $debug;
 	
 	my $ok = system($cmd) == 0;
 	say "Application '$app' started in '$env' mode."       if $daemon and $ok;
@@ -284,6 +280,7 @@ sub parse_user_config {
 	} else {
 		die "Error: wrong method '$method'";
 	}
+	$listen =~ s#/+#/#g;
 	
 	my $pid = $c->{$env}->{pid_path} || $c->{pid_path} || $default->{pids};
 	given ( $pid ) {
@@ -294,10 +291,12 @@ sub parse_user_config {
 	my $pid_name = $c->{$env}->{pid_name} || $app.'.pid';
 	my $pidfile  = $pid.$pid_name;
 	
+	$pidfile =~ s#/+#/#g;
+	
 	my $opt      = $c->{$env}->{opt};
 	$opt .= ' -r -R ' . $c->{$env}->{autoreload} if $c->{$env}->{autoreload};
 	
-	my $daemon   = 1 unless $c->{$env}->{daemon} eq '0';
+	my $daemon   = 1 unless $c->{$env}->{daemon} eq '0' or $c->{$env}->{autoreload};
 	$opt .= ' -D ' if $daemon;
 	
 	my $chmod    = $c->{$env}->{chmod} || $c->{chmod} || $default->{chmod};
@@ -326,7 +325,7 @@ sub status {
 			# say $_;
 			# F   UID   PID  PPID      PRI   NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
 			# 1  1000  6460     1       20    0  25012 15532 poll_s Ss   ?          0:00 starman master
-			my ($f, $uid, $pid, $ppid, $pri, $ni, $sz, $rss, $wchan, $s,  $tty, $time, $cmd) = split /\s+/;
+	 		my ($f, $uid, $pid, $ppid, $pri, $ni, $sz, $rss, $wchan, $s,  $tty, $time, $cmd) = split /\s+/;
 
 			my $pid_in_file = qx{head -1 $pidfile}; #"
 
@@ -379,9 +378,10 @@ sub trim {
 }
 #===============================================================================
 sub help {
-	say "dancerctl version $VERSION, Copyright (c) 2011, Nick Knutov, nick\@knutov.com";
-	say "Usage: dancerctl action [appname [environment]]";
+	say "dancerctl version $VERSION, Copyright (c) 2011,2012, Nick Knutov, nick\@knutov.com";
+	say "Usage: dancerctl [appname [environment]] action";
 	say "Please see https://github.com/knutov/dancerctl for more help";
+	say;
 }
 __DATA__
 # This can also be placed in 'recommended:' section in /etc/dancerctl.conf
